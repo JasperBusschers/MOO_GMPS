@@ -1,3 +1,4 @@
+from plot_pareto import plot_pareto
 from rllab.algos.base import RLAlgorithm
 from sandbox.rocky.tf.policies.base import Policy
 from sandbox.rocky.tf.samplers.batch_sampler import BatchSampler
@@ -37,6 +38,8 @@ class BatchMAMLPolopt(RLAlgorithm):
             baseline,
             metalearn_baseline=False,
             scope=None,
+            save_path = None,
+            real_path=None,
             n_itr=500,
             start_itr=0,
             batch_size=100,
@@ -149,6 +152,7 @@ class BatchMAMLPolopt(RLAlgorithm):
         self.extra_input_dim = extra_input_dim
         self.debug_pusher=debug_pusher
         self.cached_demos=None
+        self.save_path = save_path
         self.cached_demos_path=None
         # Next, we will set up the goals and potentially trajectories that we plan to use.
         # If we use trajectorie
@@ -274,7 +278,7 @@ class BatchMAMLPolopt(RLAlgorithm):
                         goal_idxs_to_use = self.goals_idxs_for_itr_dict[itr]
                     
                     all_samples_data = []
-                    num_inner_updates=35
+                    num_inner_updates=5
                     for step in range(num_inner_updates+1): # inner loop
                         logger.log("Obtaining samples...")
 
@@ -284,12 +288,13 @@ class BatchMAMLPolopt(RLAlgorithm):
                             paths = self.obtain_samples(itr=itr, reset_args=goal_idxs_to_use,
                                                             log_prefix=str(step),testitr=itr in self.testing_itrs,preupdate=True)
                             paths = store_agent_infos(paths)  # agent_infos_orig is populated here
-                            np.save("C:\\Users\\JasperBusschers\\PycharmProjects\\MOO_GMPS\\logs\\dam\\flr=0.0005\\"+str(itr)+"-"+str(step)+".npy",paths)
+                            np.save(self.save_path+str(itr)+"-"+str(step)+".npy",paths)
+                            plot_pareto(self.save_path+str(itr)+"-"+str(step)+".npy",self.expert_trajs_dir, self.meta_batch_size, self.save_path+str(itr)+"-"+str(step)+".png")
                         elif itr in self.testing_itrs:
                             
                             paths = self.obtain_samples(itr=itr, reset_args=goal_idxs_to_use,
                                                                 log_prefix=str(step),testitr=True,preupdate=False , contexts = self.contexts)
-                            np.save("C:\\Users\\JasperBusschers\\PycharmProjects\\MOO_GMPS\\logs\\dam\\flr=0.0005\\"+str(itr) + "test_paths.npy", paths)
+                            np.save(self.save_path+str(itr) + "-test_paths.npy", paths)
                         else:
                             paths = expert_traj_for_metaitr
 

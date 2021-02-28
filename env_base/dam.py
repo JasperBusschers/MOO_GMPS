@@ -72,7 +72,7 @@ class DamEnv(Serializable,Env):
     
     def __init__(self,w1=0.5, nO=2, penalize=False, *args, **kwargs):
         super(DamEnv).__init__()
-        self.tasks =[0.05,0.2,0.47,0.56,0.65,0.8] #[0.25,0.3,0.4,0.5,0.6,0.8,0.85]#[i/100 for i in range(0,100,5)]#[0.15,0.2,0.85]#[0.15,0.2,0.3,0.45,0.85]#[0.15,0.2,0.25,0.3,0.35,0.45,0.5, 0.6, 0.85]#[i/100 for i in range(0,100,5)]
+        self.tasks =[0.05,0.25,0.64,0.73,0.99] #[0.25,0.3,0.4,0.5,0.6,0.8,0.85]#[i/100 for i in range(0,100,5)]#[0.15,0.2,0.85]#[0.15,0.2,0.3,0.45,0.85]#[0.15,0.2,0.25,0.3,0.35,0.45,0.5, 0.6, 0.85]#[i/100 for i in range(0,100,5)]
         self.w1 = w1
         self.nO = nO
         self.penalize = penalize
@@ -84,7 +84,8 @@ class DamEnv(Serializable,Env):
         Serializable.__init__(self, *args, **kwargs)
 
     def reset(self, init_state=None, reset_args=None, **kwargs):
-        self.w1 = self.tasks[reset_args]
+        if reset_args is not None:
+            self.w1 = self.tasks[reset_args]
         if not self.penalize:
             state = np.random.choice(DamEnv.s_init, size=1)
         else:
@@ -142,7 +143,7 @@ class DamEnv(Serializable,Env):
     @overrides
     def observation_space(self):
         ub = np.zeros([1])
-        return spaces.Box(ub , ub*1e6)
+        return spaces.Box(ub , (ub+80))
 
     @overrides
     @property
