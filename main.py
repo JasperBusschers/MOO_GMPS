@@ -20,31 +20,31 @@ def arguments():
     #parameters for environment
     parse.add_argument('--env', type=str, default="dam",help='environment to use')
     parse.add_argument('--log_dir', type=str, default="/logs/dam", help='environment to use')
-    parse.add_argument('--save_path', type=str, default="C:\\Users\\JasperBusschers\\PycharmProjects\\MOO_GMPS\\logs\\dam11\\run1\\", help='path to store results')
+    parse.add_argument('--save_path', type=str, default="C:\\Users\\JasperBusschers\\PycharmProjects\\MOO_GMPS\\logs\\dam12\\run1\\", help='path to store results')
     parse.add_argument('--dagger', type=str, default=None)
     parse.add_argument('--expert_policy_loc', type=str, default=None)
     parse.add_argument('--EXPERT_TRAJ_LOCATION', type=str, default="C:\\Users\\JasperBusschers\\PycharmProjects"
-                                                                   "\\MOO_GMPS\\moo_envs\\expert_traj\\dam11\\")
+                                                                   "\\MOO_GMPS\\moo_envs\\expert_traj\\dam12\\")
     parse.add_argument('--load_policy', type=str, default=None)
     parse.add_argument('--max_path_length', type=int, default=5)
     parse.add_argument('--seed', type=int, default=1)
-    parse.add_argument('--init_flr', type=float, default=0.5)
-    parse.add_argument('--fbs', type=int, default=10, help= "fast batch size")
+    parse.add_argument('--init_flr', type=float, default=0.005)
+    parse.add_argument('--fbs', type=int, default=5, help= "fast batch size")
     parse.add_argument('--mbs', type=int, default=5 , help= "number of meta tasks")
     parse.add_argument('--n_parallel', type=int, default=1)
     parse.add_argument('--ldim', type=int, default=4, help='latent dimension')
     parse.add_argument('--expl',   default=False, type=lambda x: (str(x).lower() == 'true'), help='')
     parse.add_argument('--use_corr_term', default=False, type=lambda x: (str(x).lower() == 'true'), help='')
-    parse.add_argument('--l2loss_std_mult', type=int, default=0)
+    parse.add_argument('--l2loss_std_mult', type=float, default=0.1)
     parse.add_argument('--extra_input_dim', type=int, default=0)
     parse.add_argument('--extra_input', type=int, default=None)
     parse.add_argument('--beta_steps', type=int, default=1)
-    parse.add_argument('--meta_step_size', type=float, default=0.005)
+    parse.add_argument('--meta_step_size', type=float, default=0.5)
     parse.add_argument('--num_grad_updates', type=int, default=1)
     parse.add_argument('--pre_std_modifier', type=float, default=1.)
     parse.add_argument('--post_std_modifier', type=float, default=0.00001)
     parse.add_argument('--limit_demos_num', type=int, default=None)
-    parse.add_argument('--adamSteps', type=int, default=500)
+    parse.add_argument('--adamSteps', type=int, default=100)
     parse.add_argument('--test_on_training_goals', default=False, type=lambda x: (str(x).lower() == 'true'))
     parse.add_argument('--use_maesn', default=False, type=lambda x: (str(x).lower() == 'true'))
     args = parse.parse_args()
@@ -62,7 +62,7 @@ def run_experiment(args):
         env_spec=env.spec,
         grad_step_size=args.init_flr,
         hidden_nonlinearity=tf.nn.relu,
-        hidden_sizes=(10, 10),
+        hidden_sizes=(20, 20),
         init_flr_full=args.init_flr,
         latent_dim=args.ldim
     )
@@ -78,10 +78,10 @@ def run_experiment(args):
         max_path_length=args.max_path_length,
         meta_batch_size=args.mbs,  # number of tasks sampled for beta grad update
         num_grad_updates=args.num_grad_updates,  # number of alpha grad updates
-        n_itr=10000,
+        n_itr=50,
         make_video=False,
         use_maml=True,
-        use_pooled_goals=False,
+        use_pooled_goals=True,
         use_corr_term=args.use_corr_term,
         test_on_training_goals=args.test_on_training_goals,
         metalearn_baseline=False,
@@ -107,6 +107,7 @@ def run_experiment(args):
         expert_policy_loc=args.expert_policy_loc
     )
     algo.train()
+    algo.optimize
 
 if __name__ == '__main__':
     args = arguments()

@@ -101,7 +101,7 @@ class DamEnv(Serializable,Env):
         actionUB = self.state
         done = False
         self.curr_step+=1
-        if self.curr_step >= 10:
+        if self.curr_step >= 5:
             done = True
         # Penalty proportional to the violation
         bounded_action = np.clip(action, actionLB, actionUB)
@@ -129,7 +129,7 @@ class DamEnv(Serializable,Env):
         reward = np.array([r0, r1, r2, r3], dtype=np.float32)[:self.nO].flatten()
         reward = self.w1 * r0/3 + (1-self.w1)*r1
         self.state = n_state
-        return n_state, reward[0], done, {"r0":r0 , "r1" : r1}
+        return n_state, reward[0], done, {"r0":r0/3 , "r1" : r1}
 
     @property
     @overrides

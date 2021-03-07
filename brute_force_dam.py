@@ -26,7 +26,7 @@ for seq in samples:
     for a in seq:
         a = 0.5+(a/80)
         ns, r, done, rewa = env_.step([a])
-        r0 += rewa['r0'][0]/3
+        r0 += rewa['r0'][0]
         r1 += rewa['r1'][0]
         observations.append(s)
         s=ns
@@ -136,7 +136,7 @@ for r,a,o,mo ,w in zip(dict_output['rewards'],dict_output['actions'],dict_output
     print(a)
     dict_output2['actions'] = np.asarray(dict_output2['actions'])
     output.append(dict_output2)
-    joblib.dump(output,"C:\\Users\\JasperBusschers\\PycharmProjects\\MOO_GMPS\\moo_envs\\expert_traj\\dam11/" +str(j)+ '.pkl' )
+    joblib.dump(output,"C:\\Users\\JasperBusschers\\PycharmProjects\\MOO_GMPS\\moo_envs\\expert_traj\\dam12/" +str(j)+ '.pkl' )
     #with open("/home/jasper/Documents/master/GMPS-master/moo_envs/expert_traj/dam10/" +str(j)+ '.pkl',
     #          'wb') as handle:
     #    pickle.dump(output, handle, protocol=pickle.HIGHEST_PROTOCOL)

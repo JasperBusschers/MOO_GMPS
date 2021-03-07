@@ -278,23 +278,22 @@ class BatchMAMLPolopt(RLAlgorithm):
                         goal_idxs_to_use = self.goals_idxs_for_itr_dict[itr]
                     
                     all_samples_data = []
-                    num_inner_updates=5
+                    #num_inner_updates=5
                     for step in range(num_inner_updates+1): # inner loop
                         logger.log("Obtaining samples...")
 
 
                         if step < num_inner_updates:
-                            
                             paths = self.obtain_samples(itr=itr, reset_args=goal_idxs_to_use,
                                                             log_prefix=str(step),testitr=itr in self.testing_itrs,preupdate=True)
                             paths = store_agent_infos(paths)  # agent_infos_orig is populated here
-                            np.save(self.save_path+str(itr)+"-"+str(step)+".npy",paths)
-                            plot_pareto(self.save_path+str(itr)+"-"+str(step)+".npy",self.expert_trajs_dir, self.meta_batch_size, self.save_path+str(itr)+"-"+str(step)+".png")
+                            #np.save(self.save_path+str(itr)+"-"+str(step)+".npy",paths)
+                            #plot_pareto(self.save_path+str(itr)+"-"+str(step)+".npy",self.expert_trajs_dir, self.meta_batch_size, self.save_path+str(itr)+"-"+str(step)+".png")
                         elif itr in self.testing_itrs:
                             
                             paths = self.obtain_samples(itr=itr, reset_args=goal_idxs_to_use,
                                                                 log_prefix=str(step),testitr=True,preupdate=False , contexts = self.contexts)
-                            np.save(self.save_path+str(itr) + "-test_paths.npy", paths)
+                            #np.save(self.save_path+str(itr) + "-test_paths.npy", paths)
                         else:
                             paths = expert_traj_for_metaitr
 
@@ -333,11 +332,16 @@ class BatchMAMLPolopt(RLAlgorithm):
                             else:
                                
                                 self.policy.std_modifier = self.post_std_modifier*self.policy.std_modifier
-                            if (itr in self.testing_itrs or not self.use_maml_il or step<num_inner_updates-1) and step < num_inner_updates:
+                            if (itr %5==0  or not self.use_maml_il or step<num_inner_updates-1) and step < num_inner_updates:
                                 # do not update on last grad step, and do not update on second to last step when training MAMLIL
                                 logger.log("Computing policy updates...")
                                 self.policy.compute_updated_dists(samples=samples_data)
-
+                                paths2 = self.obtain_samples(itr=itr, reset_args=goal_idxs_to_use,
+                                                            log_prefix=str(step), testitr=itr in self.testing_itrs,
+                                                            preupdate=True)
+                                np.save(self.save_path + str(itr) + "-" + str(step) + ".npy", paths2)
+                                plot_pareto(self.save_path + str(itr) + "-" + str(step) + ".npy", self.expert_trajs_dir,
+                                            self.meta_batch_size, self.save_path + str(itr) + "-" + str(step) + ".png")
                     logger.log("Optimizing policy...")
                     # This needs to take all samples_data so that it can construct graph for meta-optimization.
 

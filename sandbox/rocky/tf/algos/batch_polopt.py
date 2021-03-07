@@ -33,7 +33,7 @@ class BatchPolopt(RLAlgorithm):
             batch_size=5000,
             batch_size_expert_traj=5000,
             max_path_length=500,
-            discount=0.99,
+            discount=0.95,
             gae_lambda=1,
             plot=False,
             pause_for_plot=False,
@@ -222,8 +222,8 @@ class BatchPolopt(RLAlgorithm):
                     
                     logger.dump_tabular(with_prefix=False)
 
-        if self.log_dir is not None:
-            logger.remove_tabular_output(self.log_dir+'progress.csv')           
+        #if self.log_dir is not None:
+        #    logger.remove_tabular_output(self.log_dir+'progress.csv')
         self.shutdown_worker()
 
     def log_diagnostics(self, paths):

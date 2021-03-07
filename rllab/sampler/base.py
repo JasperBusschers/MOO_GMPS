@@ -117,7 +117,7 @@ class BaseSampler(Sampler):
             baselines = list(map(lambda x: np.pad(x, (0, max(map(len, baselines)) - len(x))).tolist(), baselines))
 
 
-            l2 = np.linalg.norm(np.array(baselines)[:20]-np.array(returns)[:20])
+            l2 = np.linalg.norm(np.array(baselines)-np.array(returns))
 
         if not self.algo.policy.recurrent:
             observations = tensor_utils.concat_tensor_list([path["observations"] for path in paths] , pad = True)
