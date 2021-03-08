@@ -3,6 +3,7 @@ from rllab.baselines.linear_feature_baseline import LinearFeatureBaseline
 from rllab.baselines.zero_baseline import ZeroBaseline
 from rllab.envs.normalized_env import normalize
 from rllab.misc.instrument import stub, run_experiment_lite
+from sandbox.rocky.tf.policies.maml_minimal_gauss_mlp_policy_adaptivestep_biastransform import MAMLGaussianMLPPolicy as fullAda_Bias_policy
 
 from sandbox.rocky.tf.algos.vpg import VPG as vpg_basic
 from sandbox.rocky.tf.algos.vpg_biasADA import VPG as vpg_biasADA
@@ -51,24 +52,52 @@ def experiment(variant):
     batch_size = variant['batch_size']
 
     baseline = LinearFeatureBaseline(env_spec=env.spec)
+    use_meta = False
+    if use_meta:
+        algo = vpg_fullADA(
+            env=env,
+            policy=None,
+            load_policy=init_file,
+            baseline=baseline,
+            batch_size=batch_size,  # 2x
+            max_path_length=max_path_length,
+            n_itr=n_itr,
+            # noise_opt = True,
+            default_step=default_step,
+            sampler_cls=VectorizedSampler,  # added by RK 6/19
+            sampler_args=dict(n_envs=1),
 
-    algo = vpg_fullADA(
-        env=env,
-        policy=None,
-        load_policy=init_file,
-        baseline=baseline,
-        batch_size=batch_size,  # 2x
-        max_path_length=max_path_length,
-        n_itr=n_itr,
-        # noise_opt = True,
-        default_step=default_step,
-        sampler_cls=VectorizedSampler,  # added by RK 6/19
-        sampler_args=dict(n_envs=1),
+            # reset_arg=np.asscalar(taskIndex),
+            reset_arg=taskIndex,
+            log_dir=log_dir
+        )
+    else:
+        policy = fullAda_Bias_policy(
+            name="policy",
+            env_spec=env.spec,
+            grad_step_size=0.1,
+            hidden_nonlinearity=tf.nn.relu,
+            hidden_sizes=(20, 20),
+            init_flr_full=0.1,
+            latent_dim=4
+        )
+        algo = vpg_fullADA(
+            env=env,
+            policy=policy,
+            baseline=baseline,
+            batch_size=batch_size,  # 2x
+            max_path_length=max_path_length,
+            n_itr=n_itr,
+            # noise_opt = True,
+            default_step=default_step,
+            sampler_cls=VectorizedSampler,  # added by RK 6/19
+            sampler_args=dict(n_envs=1),
 
-        # reset_arg=np.asscalar(taskIndex),
-        reset_arg=taskIndex,
-        log_dir=log_dir
-    )
+            # reset_arg=np.asscalar(taskIndex),
+            reset_arg=taskIndex,
+            log_dir=log_dir
+        )
+
 
 
     algo.train()
