@@ -31,26 +31,14 @@ import joblib
 
 def experiment(variant):
 
-
-    seed = variant['seed'] ;  log_dir = variant['log_dir']  ; n_parallel = variant['n_parallel']
-
-
+    log_dir = variant['log_dir']
     init_file = variant['init_file'] ; taskIndex = variant['taskIndex']
     n_itr = variant['n_itr'] ; default_step = variant['default_step']
-    policyType = variant['policyType'] ; envType = variant['envType']
-
-
     max_path_length = variant['max_path_length']
-
-    use_images = 'conv' in policyType
-
     env = TfEnv(normalize(DamEnv()))
 
-
-    baseline = ZeroBaseline(env_spec=env.spec)
     # baseline = LinearFeatureBaseline(env_spec = env.spec)
     batch_size = variant['batch_size']
-
     baseline = LinearFeatureBaseline(env_spec=env.spec)
     use_meta = False
     if use_meta:
@@ -102,20 +90,15 @@ def experiment(variant):
 
     algo.train()
 
-val = False
 
 ####################### Example Testing script for Pushing ####################################
 #envType = 'Push' ; max_path_length = 50 ; tasksFile = 'push_v4_val'
-path_to_gmps = '/home/russell/gmps/'
-path_to_multiworld = '/home/russell/multiworld/'
-OUTPUT_DIR = path_to_gmps + '/data/local/'
+
 
 
 envType = 'Ant' ; annotation = 'v2-40tasks' ; tasksFile = 'rad2_quat_v2' ; max_path_length = 5
 policyType = 'fullAda_Bias'
 initFile = 'logs/dam/itr_0.pkl'
-#policyType = 'biasAda_Bias'
-#policyType = 'conv_fcBiasAda'
 
 initFlr = 0.05 ; seed = 1
 batch_size = 64
@@ -125,8 +108,6 @@ batch_size = 64
 
 expPrefix = 'Test/Ant/'
 
-if 'conv' in policyType:
-    expPrefix = 'img-'+expPrefix
 
 #n_itr = 2
 for index in [1]:
