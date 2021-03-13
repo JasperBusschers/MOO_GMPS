@@ -186,7 +186,6 @@ class BaseSampler(Sampler):
                     rewards=rewards,
                     returns=returns,
                     advantages=advantages,
-                    env_infos=env_infos,
                     agent_infos=agent_infos,
                     paths=paths,
                     expert_actions=expert_actions,

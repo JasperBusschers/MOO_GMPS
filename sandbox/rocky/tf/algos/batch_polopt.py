@@ -221,10 +221,12 @@ class BatchPolopt(RLAlgorithm):
 
                     
                     logger.dump_tabular(with_prefix=False)
+            test_res = self.obtain_samples(itr=1, reset_args=[1], preupdate=preupdate)
 
         #if self.log_dir is not None:
         #    logger.remove_tabular_output(self.log_dir+'progress.csv')
         self.shutdown_worker()
+        return test_res
 
     def log_diagnostics(self, paths):
         self.env.log_diagnostics(paths)

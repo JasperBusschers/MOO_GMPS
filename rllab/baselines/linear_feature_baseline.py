@@ -17,7 +17,7 @@ class LinearFeatureBaseline(Baseline):
         self._coeffs = val
 
     def _features(self, path):
-        if 'state' in path['env_infos'].keys() and 'cnn_out' in path['agent_infos'].keys():
+        if False:#'state' in path['env_infos'].keys() and 'cnn_out' in path['agent_infos'].keys():
             print("debug, using cnn_out")
             o = np.clip(path['env_infos']['state'], -10, 10)
             v = np.clip(path['agent_infos']['cnn_out'], -10, 10)

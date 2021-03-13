@@ -4,7 +4,8 @@ from maml_examples.maml_experiment_vars import MOD_FUNC
 from rllab.baselines.linear_feature_baseline import LinearFeatureBaseline
 from sandbox.rocky.tf.algos.maml_il import MAMLIL
 from sandbox.rocky.tf.algos.maml_npo import MAMLNPO
-from sandbox.rocky.tf.policies.maml_minimal_gauss_mlp_policy_adaptivestep_biastransform import MAMLGaussianMLPPolicy as fullAda_Bias_policy
+from sandbox.rocky.tf.algos.maml_trpo import MAMLTRPO
+from sandbox.rocky.tf.algos.maml_vpg import MAMLVPG
 from rllab.envs.normalized_env import normalize
 
 # Press Shift+F10 to execute it or replace it with your code.
@@ -12,6 +13,7 @@ from rllab.envs.normalized_env import normalize
 from sandbox.rocky.tf.envs.base import TfEnv
 import argparse
 import tensorflow as tf
+from sandbox.rocky.tf.policies.maml_minimal_gauss_mlp_policy import MAMLGaussianMLPPolicy
 
 
 
@@ -40,11 +42,11 @@ def arguments():
     parse.add_argument('--extra_input', type=int, default=None)
     parse.add_argument('--beta_steps', type=int, default=1)
     parse.add_argument('--meta_step_size', type=float, default=0.5)
-    parse.add_argument('--num_grad_updates', type=int, default=1)
+    parse.add_argument('--num_grad_updates', type=int, default=15)
     parse.add_argument('--pre_std_modifier', type=float, default=1.)
     parse.add_argument('--post_std_modifier', type=float, default=0.00001)
     parse.add_argument('--limit_demos_num', type=int, default=None)
-    parse.add_argument('--adamSteps', type=int, default=100)
+    parse.add_argument('--adamSteps', type=int, default=10)
     parse.add_argument('--test_on_training_goals', default=False, type=lambda x: (str(x).lower() == 'true'))
     parse.add_argument('--use_maesn', default=False, type=lambda x: (str(x).lower() == 'true'))
     args = parse.parse_args()
@@ -57,14 +59,13 @@ def run_experiment(args):
     if args.env == "dam":
         env = TfEnv(normalize(DamEnv()))
 
-    policy = fullAda_Bias_policy(
+
+    policy =  MAMLGaussianMLPPolicy(
         name="policy",
         env_spec=env.spec,
         grad_step_size=args.init_flr,
         hidden_nonlinearity=tf.nn.relu,
         hidden_sizes=(20, 20),
-        init_flr_full=args.init_flr,
-        latent_dim=args.ldim
     )
     baseline = LinearFeatureBaseline(env_spec = env.spec)
 
@@ -78,7 +79,7 @@ def run_experiment(args):
         max_path_length=args.max_path_length,
         meta_batch_size=args.mbs,  # number of tasks sampled for beta grad update
         num_grad_updates=args.num_grad_updates,  # number of alpha grad updates
-        n_itr=50,
+        n_itr=100,
         make_video=False,
         use_maml=True,
         use_pooled_goals=True,
@@ -107,7 +108,6 @@ def run_experiment(args):
         expert_policy_loc=args.expert_policy_loc
     )
     algo.train()
-    algo.optimize
 
 if __name__ == '__main__':
     args = arguments()
