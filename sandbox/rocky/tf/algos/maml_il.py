@@ -145,10 +145,10 @@ class MAMLIL(BatchMAMLPolopt):
             #updated_params.append(updated_params_i)
             # # here we define the loss for meta-gradient
             a_star = expert_action_vars[i]
-            s = dist_info_sym_i["log_std"]
+            #s = dist_info_sym_i["log_std"]
 
             m = dist_info_sym_i["mean"]
-            outer_surr_obj = tf.reduce_mean(m**2 - 2*m*a_star+a_star**2+self.l2loss_std_multiplier*(tf.square(tf.exp(s))))
+            outer_surr_obj = tf.reduce_mean(m**2 - 2*m*a_star+a_star**2)#+self.l2loss_std_multiplier*(tf.square(tf.exp(s)))
             outer_surr_objs.append(outer_surr_obj)
 
         outer_surr_obj = tf.reduce_mean(tf.stack(outer_surr_objs, 0)) # mean over all the different tasks

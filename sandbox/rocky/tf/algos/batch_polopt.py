@@ -171,10 +171,10 @@ class BatchPolopt(RLAlgorithm):
             self.start_worker()
             start_time = time.time()
             for itr in range(self.start_itr, self.n_itr):
-                if itr == self.n_itr-1:
-                    self.policy.std_modifier = 0.00001
+                #if itr == self.n_itr-1:
+                    #self.policy.std_modifier = 0.00001
                     #self.policy.std_modifier = 1
-                    self.policy.recompute_dist_for_adjusted_std()
+                   # self.policy.recompute_dist_for_adjusted_std()
                 if itr in self.goals_for_ET_dict.keys():
                     # self.policy.std_modifier = 0.0001
                     # self.policy.recompute_dist_for_adjusted_std()
@@ -221,7 +221,14 @@ class BatchPolopt(RLAlgorithm):
 
                     
                     logger.dump_tabular(with_prefix=False)
-            test_res = self.obtain_samples(itr=1, reset_args=[1], preupdate=preupdate)
+                test_res = self.obtain_samples(itr=1, reset_args=[1], preupdate=False)
+                for i in test_res:
+                    print(i['env_infos'])
+                    r0 = np.sum(i['env_infos']['r0'])
+                    r1 = np.sum(i['env_infos']['r1'])
+                    break
+                print(" -----------------------------------------------------------------------------------------------------------")
+                print(r0,r1)
 
         #if self.log_dir is not None:
         #    logger.remove_tabular_output(self.log_dir+'progress.csv')

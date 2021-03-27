@@ -24,10 +24,17 @@ DOWN = 2
 LEFT = 3
 
 class dsth(Serializable, Env):
-    def __init__(self, num_goals=40, train=True,width=10, *args, **kwargs):
+    def __init__(self, task = 4, num_goals=9, train=True,width=10, *args, **kwargs):
+        # ensure that same depths will always be chosen
+        # random treasure-depths for each x-pos
+        depths = np.random.RandomState(0).choice(range(4) ,size=width - 1 ,p=[.3 ,.5 ,.1 ,.1])
+        # add first treasure depth (always 1)
+        depths = np.append([1] ,depths)
+        self.depths = np.cumsum(depths)
         thetas = np.linspace(0, np.pi / 2, 40)
-        self.goals = [[124,-19],[1,-1],[2,-3], [3,-5] , [5,-7] ,[8,-8], [16,-9] , [24,-13], [50,-14], [74,-17] ]
-        self.goal = [124,-19]
+        self.task = task
+        self.goals = [0.0, 0.03, 0.05, 0.08, 0.13, 0.23, 0.29, 0.5, 0.6]
+        self.goal = self.goals[task]
         self.num_goals = num_goals
         self.sparse = False
         self.info_logKeys = ['goal_dist']
@@ -79,8 +86,8 @@ class dsth(Serializable, Env):
 
 
     def reset(self, init_state=None, reset_args=None, **kwargs):
-        print(reset_args)
-        goal_idx = reset_args
+        #print(reset_args)
+        goal_idx =reset_args
         self.steps = 0
         if goal_idx is not None:
             self.goal = self.goals[goal_idx]
@@ -89,26 +96,36 @@ class dsth(Serializable, Env):
         self.s = categorical_sample(self.isd, self.np_random)
         self.lastaction = None
         obs = self.get_current_obs()
-        print("Achieved reward after episode : " +str(self.total_reward))
+        #print("Achieved reward after episode : " +str(self.total_reward))
         self.total_reward = np.zeros([2])
         return self.s
 
 
 
     def step(self, action):
-        action = int(np.round(action))
+        action = action
         transitions = self.P[self.s][action]
         i = categorical_sample([t[0] for t in transitions], self.np_random)
         p, s, r, d = transitions[i]
         self.s = s
         self.lastaction = action
         r_= r
-        self.total_reward += r
-        r = self.chebychev()#0.99*r[0]+0.01*r[1]
+        r = self.goal*r[0]+(1-self.goal)*r[1]
+        if self.total_reward[0] > 0:
+            r_[0] =0
+            r_[1] = 0
+            r = 0
+            s = 115
+            if action != 2:
+                r_[0] = -10
+                r_[1] = -10
+                r = self.goal * r_[0] + (1 - self.goal) * r_[1]
+        else:
+            self.total_reward += r_
 
 
         self.steps+=1
-        return (s, float(r), d, {"prob": p})
+        return (s, float(r), d, {"r0": r_[0], "r1" : r_[1]})
 
     def chebychev(self):
         return - np.max([np.abs(self.total_reward[0] - self.goal[0]),
@@ -126,19 +143,9 @@ class dsth(Serializable, Env):
 
     def _treasures(self):
 
-        if self.shape[1] > 10:
-            raise ValueError('Default Deep Sea Treasure only supports a grid-size of max 10')
+        pareto_front = lambda x:np.round(-45.64496 - (59.99308 / -0.2756738) * (1 - np.exp(0.2756738 * x)))
 
-        return {(1, 0): 1,
-                (2, 1): 2,
-                (3, 2): 3,
-                (4, 3): 5,
-                (4, 4): 8,
-                (4, 5): 16,
-                (7, 6): 24,
-                (7, 7): 50,
-                (9, 8): 74,
-                (10, 9): 124}
+        return {(d ,i):pareto_front(-(i + d)) for i ,d in enumerate(self.depths)}
 
     def _unreachable_positions(self):
         u = []
@@ -186,14 +193,10 @@ class dsth(Serializable, Env):
         init = np.zeros([0]).shape
         ub = np.array([3])
         lb = np.zeros_like(ub)
-        return spaces.Box(lb, ub)
+        return spaces.Discrete(4)
 
     @property
     def observation_space(self):
         shp = self.get_current_obs().shape
-        ub = 1e6 * np.ones(shp)
-        return spaces.Box(ub * -1, ub)
-
-    @property
-    def action_bounds(self):
-        return self.action_space.bounds
+        ub = 100 * np.ones(shp)
+        return spaces.Box(ub * 0, ub)

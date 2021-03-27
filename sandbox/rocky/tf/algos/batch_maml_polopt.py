@@ -289,11 +289,7 @@ class BatchMAMLPolopt(RLAlgorithm):
                             paths = store_agent_infos(paths)  # agent_infos_orig is populated here
                             #np.save(self.save_path+str(itr)+"-"+str(step)+".npy",paths)
                             #plot_pareto(self.save_path+str(itr)+"-"+str(step)+".npy",self.expert_trajs_dir, self.meta_batch_size, self.save_path+str(itr)+"-"+str(step)+".png")
-                        elif itr in self.testing_itrs:
-                            
-                            paths = self.obtain_samples(itr=itr, reset_args=goal_idxs_to_use,
-                                                                log_prefix=str(step),testitr=True,preupdate=False , contexts = self.contexts)
-                            #np.save(self.save_path+str(itr) + "-test_paths.npy", paths)
+
                         else:
                             paths = expert_traj_for_metaitr
 
@@ -336,12 +332,12 @@ class BatchMAMLPolopt(RLAlgorithm):
                                 # do not update on last grad step, and do not update on second to last step when training MAMLIL
                                 logger.log("Computing policy updates...")
                                 self.policy.compute_updated_dists(samples=samples_data)
-                                paths2 = self.obtain_samples(itr=itr, reset_args=goal_idxs_to_use,
-                                                            log_prefix=str(step), testitr=itr in self.testing_itrs,
-                                                            preupdate=True)
-                                np.save(self.save_path + str(itr) + "-" + str(step) + ".npy", paths2)
-                                plot_pareto(self.save_path + str(itr) + "-" + str(step) + ".npy", self.expert_trajs_dir,
-                                            self.meta_batch_size, self.save_path + str(itr) + "-" + str(step) + ".png")
+                                # paths2 = self.obtain_samples(itr=itr, reset_args=goal_idxs_to_use,
+                                #                             log_prefix=str(step), testitr=itr in self.testing_itrs,
+                                #                             preupdate=True)
+                                # np.save(self.save_path + str(itr) + "-" + str(step) + ".npy", paths2)
+                                # plot_pareto(self.save_path + str(itr) + "-" + str(step) + ".npy", self.expert_trajs_dir,
+                                #             self.meta_batch_size, self.save_path + str(itr) + "-" + str(step) + ".png")
                     logger.log("Optimizing policy...")
                     # This needs to take all samples_data so that it can construct graph for meta-optimization.
 

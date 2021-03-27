@@ -1,10 +1,11 @@
 # This is a sample Python script.
 from env_base.dam import DamEnv
+from env_base.dsth import dsth
 from maml_examples.maml_experiment_vars import MOD_FUNC
 from rllab.baselines.linear_feature_baseline import LinearFeatureBaseline
-from sandbox.rocky.tf.algos.maml_il import MAMLIL
+from sandbox.rocky.tf.algos.maml_il_disc import MAMLIL
 from sandbox.rocky.tf.algos.maml_npo import MAMLNPO
-from sandbox.rocky.tf.policies.maml_minimal_gauss_mlp_policy_adaptivestep_biastransform import MAMLGaussianMLPPolicy as fullAda_Bias_policy
+from sandbox.rocky.tf.policies.maml_minimal_gauss_mlp_policy_adaptivestep_biastransform_disc2 import MAMLGaussianMLPPolicy as fullAda_Bias_policy
 from rllab.envs.normalized_env import normalize
 
 # Press Shift+F10 to execute it or replace it with your code.
@@ -22,12 +23,11 @@ def arguments():
     parse.add_argument('--log_dir', type=str, default="/logs/dam", help='environment to use')
     parse.add_argument('--dagger', type=str, default=None)
     parse.add_argument('--expert_policy_loc', type=str, default=None)
-    parse.add_argument('--EXPERT_TRAJ_LOCATION', type=str, default="C:\\Users\\JasperBusschers\\PycharmProjects"
-                                                                   "\\MOO_GMPS\\moo_envs\\expert_traj\\dam10\\")
+    parse.add_argument('--EXPERT_TRAJ_LOCATION', type=str, default="C:\\Users\\jasper\\Documents\\AI\MOO_GMPS\\moo_envs\\expert_traj\\dam10\\")
     parse.add_argument('--load_policy', type=str, default=None)
     parse.add_argument('--max_path_length', type=int, default=50)
     parse.add_argument('--seed', type=int, default=1)
-    parse.add_argument('--init_flr', type=float, default=0.0005)
+    parse.add_argument('--init_flr', type=float, default=0.05)
     parse.add_argument('--fbs', type=int, default=10, help= "fast batch size")
     parse.add_argument('--mbs', type=int, default=5 , help= "number of meta tasks")
     parse.add_argument('--n_parallel', type=int, default=5)
@@ -54,7 +54,7 @@ def arguments():
 
 def run_experiment(args):
     if args.env == "dam":
-        env = TfEnv(normalize(DamEnv()))
+        env = TfEnv(normalize(dsth()))
 
     policy = fullAda_Bias_policy(
         name="policy",
@@ -102,7 +102,7 @@ def run_experiment(args):
         plotDirPrefix=None,
         latent_dim=args.ldim,
         dagger=args.dagger,
-        save_path="C:\\Users\\JasperBusschers\\PycharmProjects\\MOO_GMPS\\logs\\dam\\",
+        save_path="C:\\Users\\jasper\\Documents\\AI\MOO_GMPS\\logs\\dam\\",
         expert_policy_loc=args.expert_policy_loc
     )
     algo.train()
