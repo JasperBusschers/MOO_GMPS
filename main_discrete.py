@@ -5,7 +5,7 @@ from maml_examples.maml_experiment_vars import MOD_FUNC
 from rllab.baselines.linear_feature_baseline import LinearFeatureBaseline
 from sandbox.rocky.tf.algos.maml_il_disc import MAMLIL
 from sandbox.rocky.tf.algos.maml_npo import MAMLNPO
-from sandbox.rocky.tf.policies.maml_minimal_gauss_mlp_policy_adaptivestep_biastransform_disc2 import MAMLGaussianMLPPolicy as fullAda_Bias_policy
+from sandbox.rocky.tf.policies.maml_cath_mlp import CategoricalMLPPolicy as fullAda_Bias_policy
 from rllab.envs.normalized_env import normalize
 
 # Press Shift+F10 to execute it or replace it with your code.
@@ -30,7 +30,7 @@ def arguments():
     parse.add_argument('--load_policy', type=str, default=None)
     parse.add_argument('--max_path_length', type=int, default=25)
     parse.add_argument('--seed', type=int, default=1)
-    parse.add_argument('--init_flr', type=float, default=0.5)
+    parse.add_argument('--init_flr', type=float, default=0.05)
     parse.add_argument('--fbs', type=int, default=10, help= "fast batch size")
     parse.add_argument('--mbs', type=int, default=9 , help= "number of meta tasks")
     parse.add_argument('--n_parallel', type=int, default=5)
@@ -40,13 +40,13 @@ def arguments():
     parse.add_argument('--l2loss_std_mult', type=int, default=0)
     parse.add_argument('--extra_input_dim', type=int, default=0)
     parse.add_argument('--extra_input', type=int, default=None)
-    parse.add_argument('--beta_steps', type=int, default=2)
-    parse.add_argument('--meta_step_size', type=float, default=0.01)
-    parse.add_argument('--num_grad_updates', type=int, default=1)
+    parse.add_argument('--beta_steps', type=int, default=1)
+    parse.add_argument('--meta_step_size', type=float, default=0.5)
+    parse.add_argument('--num_grad_updates', type=int, default=10)
     parse.add_argument('--pre_std_modifier', type=float, default=1.)
     parse.add_argument('--post_std_modifier', type=float, default=0.00001)
     parse.add_argument('--limit_demos_num', type=int, default=None)
-    parse.add_argument('--adamSteps', type=int, default=50)
+    parse.add_argument('--adamSteps', type=int, default=1)
     parse.add_argument('--test_on_training_goals', default=False, type=lambda x: (str(x).lower() == 'true'))
     parse.add_argument('--use_maesn', default=False, type=lambda x: (str(x).lower() == 'true'))
     args = parse.parse_args()
@@ -62,11 +62,8 @@ def run_experiment(args):
     policy = fullAda_Bias_policy(
         name="policy",
         env_spec=env.spec,
-        grad_step_size=args.init_flr,
         hidden_nonlinearity=tf.nn.relu,
-        hidden_sizes=(10, 10),
-        init_flr_full=args.init_flr,
-        latent_dim=args.ldim
+        hidden_sizes=(10, 10)
     )
     baseline = LinearFeatureBaseline(env_spec = env.spec)
 

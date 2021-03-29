@@ -86,7 +86,7 @@ class dsth(Serializable, Env):
 
 
     def reset(self, init_state=None, reset_args=None, **kwargs):
-        #print(reset_args)
+        print(reset_args)
         goal_idx =reset_args
         self.steps = 0
         if goal_idx is not None:
@@ -96,7 +96,7 @@ class dsth(Serializable, Env):
         self.s = categorical_sample(self.isd, self.np_random)
         self.lastaction = None
         obs = self.get_current_obs()
-        #print("Achieved reward after episode : " +str(self.total_reward))
+        print("Achieved reward after episode : " +str(self.total_reward))
         self.total_reward = np.zeros([2])
         return self.s
 

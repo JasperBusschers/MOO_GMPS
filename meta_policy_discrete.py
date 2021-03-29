@@ -3,6 +3,7 @@ from rllab.baselines.linear_feature_baseline import LinearFeatureBaseline
 from rllab.baselines.zero_baseline import ZeroBaseline
 from rllab.envs.normalized_env import normalize
 from rllab.misc.instrument import stub, run_experiment_lite
+from sandbox.rocky.tf.algos.maml_npo import MAMLNPO
 from sandbox.rocky.tf.algos.maml_vpg import MAMLVPG
 from sandbox.rocky.tf.algos.trpo import TRPO
 from sandbox.rocky.tf.policies.categorical_mlp_policy import CategoricalMLPPolicy
@@ -46,8 +47,9 @@ def experiment(variant):
     use_meta = True
     if use_meta:
 
-        algo = TRPO(
+        algo = MAMLNPO(
             env=env,
+            use_maml=False,
             policy=None,
             load_policy=init_file,
             baseline=baseline,
@@ -101,7 +103,7 @@ def experiment(variant):
 
 envType = 'Ant' ; annotation = 'v2-40tasks' ; tasksFile = 'rad2_quat_v2' ; max_path_length = 25
 policyType = 'fullAda_Bias'
-initFile = 'logs/dam/itr_93.pkl'
+initFile = 'logs/dam/itr_151.pkl'
 
 initFlr = 0.05 ; seed = 1
 batch_size = 64
@@ -114,7 +116,7 @@ expPrefix = 'Test/Ant/'
 
 
 #n_itr = 2
-tasks = [0,1,2,3,4]
+tasks = [0,1,2,3,4,5,6,7,8]
 R0 , R1 = [] , []
 for index in tasks:
     for n_itr in [200]:

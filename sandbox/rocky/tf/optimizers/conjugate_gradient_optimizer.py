@@ -190,6 +190,7 @@ class ConjugateGradientOptimizer(Serializable):
         for idx, (grad, param) in enumerate(zip(grads, params)):
             if grad is None:
                 grads[idx] = tf.zeros_like(param)
+        print(grads)
         flat_grad = tensor_utils.flatten_tensor_variables(grads)
 
         self._hvp_approach.update_opt(f=constraint_term, target=target, inputs=inputs + extra_inputs,
