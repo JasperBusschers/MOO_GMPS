@@ -4,10 +4,10 @@ import joblib
 
 import gym
 import numpy as np
-
+import tqdm
 from env_base.dam import DamEnv
 from env_base.dsth import dsth
-
+from tqdm.contrib.itertools import product
 env = 'Dam2Objectives-v0'
 env_ = dsth()#gym.make(env)
 
@@ -15,20 +15,23 @@ output = []
 dict_output = {'rewards': [], 'agent_infos': [],  'actions': [], 'observations': [] , 'mo_rewards': []}
 
 
-samples = itertools.combinations(range(4),25)
-samples = itertools.combinations_with_replacement([ i for i in range(4)],25)
+#samples = itertools.combinations(list(range(4)),25)
+samples = itertools.combinations(range(4), 3)
+print(list(samples))
+samples = itertools.product([ i for i in range(4)],repeat=25)
 rewards = []
 for seq in samples:
+    print(seq)
     observations = []
     actions = []
     Moo_rew = []
     s= env_.reset()
     r0 = 0
     r1 =0
-    for a in seq:
+    for i, a in enumerate(seq):
         ns, r, done, rewa = env_.step(a)
-        r0 += 0.95*rewa['r0']
-        r1 += 0.95*rewa['r1']
+        r0 += 0.99**i* rewa['r0']
+        r1 += 0.99**i*rewa['r1']
         observations.append(s)
         s=ns
         action = [0,0,0,0]
@@ -38,11 +41,6 @@ for seq in samples:
     dict_output['mo_rewards'].append(np.array(Moo_rew))
     dict_output['observations'].append(observations)
     #dict_output['expert_actions'].append(actions)
-    print("---------------------")
-    print(actions)
-    print(observations)
-    print(r0)
-    print(r1)
     dict_output['actions'].append(actions)
     rewards.append([r0,r1])
 
@@ -71,7 +69,7 @@ def pareto_filter(costs, minimize=False):
             nondominated_point_mask[:next_point_index]) + 1
     return [costs[i] for i in is_efficient], is_efficient
 
-
+print(rewards)
 rewards , is_efficient = pareto_filter(rewards)
 with open("dam_brute_rewards"+ '.pkl', 'wb') as handle:
     pickle.dump(rewards, handle, protocol=pickle.HIGHEST_PROTOCOL)
@@ -81,6 +79,7 @@ dict_output['mo_rewards'] = [dict_output['mo_rewards'][i] for i in is_efficient]
 #dict_output['expert_actions'] = [dict_output['expert_actions'][i] for i in is_efficient]
 IDS = []
 weights = []
+print(rewards)
 for i in range(101):
     w1 = i/100
     w2 = 1-w1
@@ -139,7 +138,7 @@ for r,a,o,mo ,w in zip(dict_output['rewards'],dict_output['actions'],dict_output
     print(a)
     dict_output2['actions'] = np.asarray(dict_output2['actions'])
     output.append(dict_output2)
-    joblib.dump(output,"C:\\Users\\jasper\\Documents\\AI\\MOO_GMPS\\moo_envs\expert_traj\\dsth_discrete/"
+    joblib.dump(output,"C:\\Users\\jasper\\Documents\\AI\\MOO_GMPS\\moo_envs\expert_traj\\dsth_discrete2\\"
                 +str(j)+ '.pkl' )
     #with open("/home/jasper/Documents/master/GMPS-master/moo_envs/expert_traj/dam10/" +str(j)+ '.pkl',
     #          'wb') as handle:

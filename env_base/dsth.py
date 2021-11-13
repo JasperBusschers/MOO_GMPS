@@ -24,16 +24,19 @@ DOWN = 2
 LEFT = 3
 
 class dsth(Serializable, Env):
-    def __init__(self, task = 4, num_goals=9, train=True,width=10, *args, **kwargs):
+    def __init__(self, task=8, num_goals=9, train=True,width=11, *args, **kwargs):
         # ensure that same depths will always be chosen
         # random treasure-depths for each x-pos
-        depths = np.random.RandomState(0).choice(range(4) ,size=width - 1 ,p=[.3 ,.5 ,.1 ,.1])
+        depths = [1, 1, 1, 1, 1, 1 ,1, 1]#np.random.RandomState(0).choice(range(4) ,size=width - 1 ,
+        # p=[.3 ,.5 ,.1 ,.1])
+        print(depths)
         # add first treasure depth (always 1)
         depths = np.append([1] ,depths)
+        print(depths)
         self.depths = np.cumsum(depths)
         thetas = np.linspace(0, np.pi / 2, 40)
         self.task = task
-        self.goals = [0.0, 0.03, 0.05, 0.08, 0.13, 0.23, 0.29, 0.5, 0.6]
+        self.goals = [0.0, 0.03, 0.05, 0.08, 0.13, 0.23, 0.29, 0.5, 0.8]
         self.goal = self.goals[task]
         self.num_goals = num_goals
         self.sparse = False
@@ -86,8 +89,17 @@ class dsth(Serializable, Env):
 
 
     def reset(self, init_state=None, reset_args=None, **kwargs):
-        print(reset_args)
-        goal_idx =reset_args
+        #print("reset_arg")
+        #print(self.goal)
+        #print(reset_args)
+        #goal_idx =8
+        goal_idx=reset_args
+        #if reset_args ==1:
+        #     goal_idx=8
+        # elif reset_args ==2:
+        #     goal_idx=8
+        # else:
+        #     goal_idx =0
         self.steps = 0
         if goal_idx is not None:
             self.goal = self.goals[goal_idx]
@@ -96,7 +108,7 @@ class dsth(Serializable, Env):
         self.s = categorical_sample(self.isd, self.np_random)
         self.lastaction = None
         obs = self.get_current_obs()
-        print("Achieved reward after episode : " +str(self.total_reward))
+        #print("Achieved reward after episode : " +str(self.total_reward))
         self.total_reward = np.zeros([2])
         return self.s
 
@@ -144,6 +156,7 @@ class dsth(Serializable, Env):
     def _treasures(self):
 
         pareto_front = lambda x:np.round(-45.64496 - (59.99308 / -0.2756738) * (1 - np.exp(0.2756738 * x)))
+
 
         return {(d ,i):pareto_front(-(i + d)) for i ,d in enumerate(self.depths)}
 

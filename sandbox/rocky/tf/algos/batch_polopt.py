@@ -149,7 +149,7 @@ class BatchPolopt(RLAlgorithm):
     def process_samples(self, itr, paths):
         return self.sampler.process_samples(itr, paths)
 
-    def train(self):
+    def train(self, task):
 
         config = tf.ConfigProto()
         config.gpu_options.allow_growth=True
@@ -221,7 +221,7 @@ class BatchPolopt(RLAlgorithm):
 
                     
                     logger.dump_tabular(with_prefix=False)
-                test_res = self.obtain_samples(itr=1, reset_args=[1], preupdate=False)
+                test_res = self.obtain_samples(itr=1, reset_args=[task], preupdate=False)
                 for i in test_res:
                     print(i['env_infos'])
                     r0 = np.sum(i['env_infos']['r0'])

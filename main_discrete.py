@@ -2,6 +2,7 @@
 from env_base.dam import DamEnv
 from env_base.dsth import dsth
 from maml_examples.maml_experiment_vars import MOD_FUNC
+from meta_policy_discrete import run_policy_grad
 from rllab.baselines.linear_feature_baseline import LinearFeatureBaseline
 from sandbox.rocky.tf.algos.maml_il_disc import MAMLIL
 from sandbox.rocky.tf.algos.maml_npo import MAMLNPO
@@ -24,14 +25,14 @@ def arguments():
     parse.add_argument('--dagger', type=str, default=None)
     parse.add_argument('--expert_policy_loc', type=str, default=None)
     parse.add_argument('--EXPERT_TRAJ_LOCATION', type=str,
-                       default="C:\\Users\\jasper\\Documents\\AI\MOO_GMPS\\moo_envs\\expert_traj"
-                               "\\dsth_discrete"
+                       default="C:\\Users\\JasperBusschers\\Documents\\MOO_GMPS\\moo_envs\\expert_traj"
+                               "\\dsth_discrete2"
                                "\\")
     parse.add_argument('--load_policy', type=str, default=None)
     parse.add_argument('--max_path_length', type=int, default=25)
     parse.add_argument('--seed', type=int, default=1)
-    parse.add_argument('--init_flr', type=float, default=0.05)
-    parse.add_argument('--fbs', type=int, default=10, help= "fast batch size")
+    parse.add_argument('--init_flr', type=float, default=0.5)
+    parse.add_argument('--fbs', type=int, default=2, help= "fast batch size")
     parse.add_argument('--mbs', type=int, default=9 , help= "number of meta tasks")
     parse.add_argument('--n_parallel', type=int, default=5)
     parse.add_argument('--ldim', type=int, default=1, help='latent dimension')
@@ -42,7 +43,7 @@ def arguments():
     parse.add_argument('--extra_input', type=int, default=None)
     parse.add_argument('--beta_steps', type=int, default=1)
     parse.add_argument('--meta_step_size', type=float, default=0.5)
-    parse.add_argument('--num_grad_updates', type=int, default=10)
+    parse.add_argument('--num_grad_updates', type=int, default=1)
     parse.add_argument('--pre_std_modifier', type=float, default=1.)
     parse.add_argument('--post_std_modifier', type=float, default=0.00001)
     parse.add_argument('--limit_demos_num', type=int, default=None)
@@ -76,7 +77,7 @@ def run_experiment(args):
         max_path_length=args.max_path_length,
         meta_batch_size=args.mbs,  # number of tasks sampled for beta grad update
         num_grad_updates=args.num_grad_updates,  # number of alpha grad updates
-        n_itr=10000,
+        n_itr=100,
         make_video=False,
         use_maml=True,
         use_pooled_goals=True,
@@ -110,3 +111,8 @@ def run_experiment(args):
 if __name__ == '__main__':
     args = arguments()
     run_experiment(args)
+    #run policy gradients
+    run_policy_grad()
+    #store results
+
+    #store plots
